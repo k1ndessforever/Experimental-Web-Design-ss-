@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TERMINAL_BREACH v2.5</title>
+  <style>
+    :root {
+      --primary: #0f0;
+      --secondary: #00ff9d;
+      --background: #000;
+      --text: #0f0;
+      --accent: #ff0055;
+      --terminal-font: 'Courier New', monospace;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: var(--terminal-font);
+    }
+    
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap: 10px;
+      height: 100%;
+    }
+    
+    header {
+      grid-column: 1 / -1;
+      border: 1px solid var(--primary);
+      padding: 10px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .title {
+      font-size: 2rem;
+      letter-spacing: 2px;
+      text-shadow: 0 0 5px var(--primary);
+      margin-bottom: 5px;
+    }
+    
+    .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    .main-terminal {
+      border: 1px solid var(--primary);
+      padding: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar {
+      border: 1px solid var(--primary);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .terminal-content {
+      height: 100%;
+      overflow-y: auto;
+      padding: 5px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .terminal-line {
+      margin-bottom: 5px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    
+    .command-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--primary);
+      width: 100%;
+      font-size: 1rem;
+      caret-color: var(--primary);
+    }
+    
+    .prompt {
+      color: var(--primary);
+      margin-right: 5px;
+    }
+    
+    .command-line {
+      display: flex;
+      align-items: center;
+      padding: 5px 0;
+    }
+    
+    .status-bar {
+      grid-column: 1 / -1;
+      border: 1px solid var(--primary);
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .module {
+      background: rgba(0, 255, 0, 0.1);
+      border: 1px solid var(--primary);
+      padding: 10px;
+      margin-bottom: 10px;
+      height: 150px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .module-title {
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      color: var(--secondary);
+    }
+    
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        transparent 50%,
+        rgba(0, 255, 0, 0.03) 51%,
+        transparent 52%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+      animation: scan 6s linear infinite;
+      z-index: 1;
+      opacity: 0.5;
+    }
+    
+    .glitch {
+      animation: glitch 3s infinite;
+    }
+    
+    .matrix-rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    .network-map {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .node {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      position: relative;
+      margin: 0 5px;
+    }
+    
+    .node.active {
+      background-color: var(--accent);
+      box-shadow: 0 0 5px var(--accent);
+    }
+    
+    .node-row {
+      display: flex;
+      justify-content: space-around;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      border: 1px solid var(--primary);
+      margin-top: 5px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    
+    .progress-stripes {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(0, 0, 0, 0.5) 10px,
+        rgba(0, 0, 0, 0.5) 20px
+      );
+    }
+    
+    .blink {
+      animation: blink 1s infinite;
+    }
+    
+    #password-module {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .password-display {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .password-row {
+      display: flex;
+      gap: 5px;
+      font-family: monospace;
+    }
+    
+    .password-cell {
+      width: 25px;
+      height: 25px;
+      border: 1px solid var(--primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+    }
+    
+    .password-cell.highlight {
+      background-color: rgba(0, 255, 0, 0.3);
+    }
+    
+    #global-stats {
+      position: relative;
+      z-index: 3;
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 0.8rem;
+    }
+    
+    @keyframes scan {
+      0% {
+        transform: translateY(-100%);
+      }
+      100% {
+        transform: translateY(100%);
+      }
+    }
+    
+    @keyframes glitch {
+      0% {
+        text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                    -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+                    -0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+      }
+      14% {
+        text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                    -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+                    -0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+      }
+      15% {
+        text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                    0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                    -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+      }
+      49% {
+        text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                    0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                    -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+      }
+      50% {
+        text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                    0.05em 0 0 rgba(0, 255, 0, 0.75),
+                    0 -0.05em 0 rgba(0, 0, 255, 0.75);
+      }
+      99% {
+        text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                    0.05em 0 0 rgba(0, 255, 0, 0.75),
+                    0 -0.05em 0 rgba(0, 0, 255, 0.75);
+      }
+      100% {
+        text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75),
+                    -0.025em -0.025em 0 rgba(0, 255, 0, 0.75),
+                    -0.025em -0.05em 0 rgba(0, 0, 255, 0.75);
+      }
+    }
+    
+    @keyframes blink {
+      0%, 49% {
+        opacity: 1;
+      }
+      50%, 100% {
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="container">
+    <header>
+      <h1 class="title glitch">TERMINAL_BREACH v2.5</h1>
+      <p class="subtitle">Advanced Security Penetration Testing Framework</p>
+    </header>
+    
+    <div class="main-terminal">
+      <div class="overlay"></div>
+      <div class="terminal-content" id="terminal-content">
+        <div class="terminal-line">INITIALIZING SYSTEM...</div>
+        <div class="terminal-line">CONNECTING TO SECURE SERVER...</div>
+        <div class="terminal-line">ACCESS GRANTED. WELCOME TO TERMINAL_BREACH v2.5</div>
+        <div class="terminal-line">Type 'help' to see available commands.</div>
+        <div class="terminal-line">&nbsp;</div>
+      </div>
+      <div class="command-line">
+        <span class="prompt">root@breach:~$</span>
+        <input type="text" class="command-input" id="command-input" autofocus>
+      </div>
+    </div>
+    
+    <div class="sidebar">
+      <div class="module" id="password-module">
+        <div class="module-title">Password Cracker</div>
+        <div class="overlay"></div>
+        <div class="password-display">
+          <div class="password-row">
+            <div class="password-cell">6</div>
+            <div class="password-cell">F</div>
+            <div class="password-cell">0</div>
+            <div class="password-cell">9</div>
+            <div class="password-cell">A</div>
+          </div>
+          <div class="password-row">
+            <div class="password-cell">D</div>
+            <div class="password-cell highlight">4</div>
+            <div class="password-cell">7</div>
+            <div class="password-cell highlight">B</div>
+            <div class="password-cell">3</div>
+          </div>
+          <div class="password-row">
+            <div class="password-cell">2</div>
+            <div class="password-cell">C</div>
+            <div class="password-cell highlight">8</div>
+            <div class="password-cell">5</div>
+            <div class="password-cell">E</div>
+          </div>
+          <div class="password-row">
+            <div class="password-cell">1</div>
+            <div class="password-cell">A</div>
+            <div class="password-cell highlight">0</div>
+            <div class="password-cell">F</div>
+            <div class="password-cell">D</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="password-progress"></div>
+          <div class="progress-stripes"></div>
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="module-title">Network Map</div>
+        <div class="overlay"></div>
+        <div class="network-map">
+          <div class="node-row">
+            <span class="node"></span>
+            <span class="node active"></span>
+            <span class="node"></span>
+          </div>
+          <div class="node-row">
+            <span class="node"></span>
+            <span class="node"></span>
+            <span class="node"></span>
+            <span class="node active"></span>
+          </div>
+          <div class="node-row">
+            <span class="node active"></span>
+            <span class="node"></span>
+            <span class="node"></span>
+          </div>
+          <div class="node-row">
+            <span class="node"></span>
+            <span class="node active"></span>
+            <span class="node"></span>
+            <span class="node"></span>
+            <span class="node"></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="module" id="global-stats">
+        <div class="module-title">System Stats</div>
+        <div class="overlay"></div>
+        <div class="stat-item">
+          <span>CPU Usage:</span>
+          <span id="cpu-usage">67%</span>
+        </div>
+        <div class="stat-item">
+          <span>Memory:</span>
+          <span id="memory-usage">1256 MB</span>
+        </div>
+        <div class="stat-item">
+          <span>Uptime:</span>
+          <span id="uptime">02:34:17</span>
+        </div>
+        <div class="stat-item">
+          <span>Active Connections:</span>
+          <span id="connections">5</span>
+        </div>
+        <div class="stat-item">
+          <span>Security Level:</span>
+          <span class="blink" id="security-level">DELTA</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="status-bar">
+      <div>Status: <span class="blink">ACTIVE</span></div>
+      <div id="current-time">00:00:00</div>
+      <div>Trace risk: <span id="trace-risk">LOW</span></div>
+    </div>
+  </div>
+
+  <script>
+    // Matrix rain effect
+    function createMatrixRain() {
+      const canvas = document.createElement('canvas');
+      canvas.classList.add('matrix-rain');
+      document.body.appendChild(canvas);
+      
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+      const fontSize = 10;
+      const columns = Math.floor(canvas.width / fontSize);
+      
+      const drops = [];
+      for (let i = 0; i < columns; i++) {
+        drops[i] = Math.floor(Math.random() * canvas.height / fontSize);
+      }
+      
+      function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#0f0';
+        ctx.font = `${fontSize}px monospace`;
+        
+        for (let i = 0; i < drops.length; i++) {
+          const text = characters[Math.floor(Math.random() * characters.length)];
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          
+          drops[i]++;
+        }
+      }
+      
+      return setInterval(draw, 33);
+    }
+    
+    // Terminal functionality
+    const terminalContent = document.getElementById('terminal-content');
+    const commandInput = document.getElementById('command-input');
+    const passwordProgress = document.getElementById('password-progress');
+    
+    // Available commands
+    const commands = {
+      'help': 'Display this help message.',
+      'access': 'Attempt to gain access to a secured system.',
+      'scan': 'Scan for vulnerabilities in the target system.',
+      'clear': 'Clear the terminal screen.',
+      'crack': 'Start password cracking sequence.',
+      'bypass': 'Attempt to bypass security measures.',
+      'status': 'Display current system status.',
+      'exit': 'Log out from the current session.'
+    };
+    
+    // Random responses for commands
+    const hackerResponses = {
+      'access': [
+        'ACCESS DENIED: Firewall detected.',
+        'WARNING: Access attempt blocked by intrusion detection system.',
+        'PARTIAL ACCESS GRANTED to subsystem #284.',
+        'Redirecting through proxy servers to mask location...',
+        'Connected to target system. Use "bypass" to proceed.'
+      ],
+      'scan': [
+        'Scanning target IP range 192.168.1.0/24...',
+        'VULNERABILITY DETECTED: SQL Injection possible on port 8080.',
+        'Firewall detected. Attempting stealth scan...',
+        'SCAN COMPLETE: 3 open ports discovered.',
+        'WARNING: Honeypot detected. Proceed with caution.'
+      ],
+      'crack': [
+        'Starting dictionary attack...',
+        'Brute force attack initialized. ETA: 2 minutes.',
+        'HASH IDENTIFIED: SHA-256. Beginning rainbow table attack.',
+        'SUCCESS: Password fragment identified. Continuing sequence.',
+        'WARNING: Rate limiting detected. Slowing attack parameters.'
+      ],
+      'bypass': [
+        'Attempting SSL certificate validation bypass...',
+        'Injecting shellcode to override access controls...',
+        'FIREWALL BREACH: Secondary access point established.',
+        'Spoofing admin credentials. Please wait...',
+        'SUCCESS: Security layer bypassed. Proceed with "access" command.'
+      ],
+      'status': [
+        'System running at optimal parameters.',
+        'WARNING: Possible intrusion detection. Consider using exit command.',
+        'All systems nominal. No traces detected.',
+        'Connection stable. 3 active background processes.',
+        'CPU usage spiking. Consider reducing parallel operations.'
+      ],
+      'exit': [
+        'Clearing logs and terminating connection...',
+        'WARNING: Fast exit may leave traces. Proceed anyway? (Y/N)',
+        'System hibernating. Type "access" to resume.',
+        'Removing evidence of intrusion...',
+        'Connection terminated successfully.'
+      ]
+    };
+    
+    // Command handling
+    commandInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const command = commandInput.value.trim().toLowerCase();
+        commandInput.value = '';
+        
+        // Add command to terminal
+        addToTerminal(`<span class="prompt">root@breach:~$</span> ${command}`);
+        
+        // Process command
+        processCommand(command);
+        
+        // Update password cracker progress randomly
+        updatePasswordCracker();
+        
+        // Randomly update node activity
+        updateNetworkNodes();
+        
+        // Update system stats
+        updateSystemStats();
+      }
+    });
+    
+    function processCommand(command) {
+      if (command === '') return;
+      
+      if (command === 'help') {
+        let helpText = 'Available commands:';
+        for (const [cmd, desc] of Object.entries(commands)) {
+          helpText += `<br>  <span style="color: var(--secondary)">${cmd}</span> - ${desc}`;
+        }
+        addToTerminal(helpText);
+        return;
+      }
+      
+      if (command === 'clear') {
+        terminalContent.innerHTML = '';
+        return;
+      }
+      
+      if (hackerResponses[command]) {
+        const responses = hackerResponses[command];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        addToTerminal(response);
+        
+        // Add some visual effect for certain commands
+        if (command === 'scan' || command === 'crack') {
+          simulateProgressSequence(command);
+        }
+        
+        if (command === 'access' || command === 'bypass') {
+          // Increase trace risk randomly
+          const traceRisk = document.getElementById('trace-risk');
+          const risks = ['LOW', 'MODERATE', 'HIGH', 'CRITICAL'];
+          const currentIndex = risks.indexOf(traceRisk.textContent);
+          if (Math.random() > 0.5 && currentIndex < risks.length - 1) {
+            traceRisk.textContent = risks[currentIndex + 1];
+            if (currentIndex + 1 >= 2) { // HIGH or CRITICAL
+              traceRisk.style.color = 'var(--accent)';
+            } else if (currentIndex + 1 === 1) { // MODERATE
+              traceRisk.style.color = 'yellow';
+            }
+          }
+        }
+        
+        return;
+      }
+      
+      // Unknown command
+      addToTerminal(`Command not recognized: ${command}. Type 'help' for available commands.`);
+    }
+    
+    function addToTerminal(text) {
+      const line = document.createElement('div');
+      line.classList.add('terminal-line');
+      line.innerHTML = text;
+      terminalContent.appendChild(line);
+      terminalContent.scrollTop = terminalContent.scrollHeight;
+    }
+    
+    function simulateProgressSequence(command) {
+      const steps = ['/', '-', '\\', '|'];
+      let count = 0;
+      const maxSteps = 10 + Math.floor(Math.random() * 15);
+      
+      const interval = setInterval(() => {
+        const stepChar = steps[count % steps.length];
+        addToTerminal(`${stepChar} Processing... ${Math.floor((count / maxSteps) * 100)}%`);
+        count++;
+        
+        if (count > maxSteps) {
+          clearInterval(interval);
+          
+          if (command === 'scan') {
+            addToTerminal('SCAN COMPLETE. Found <span style="color:var(--accent)">3</span> vulnerabilities.');
+          } else if (command === 'crack') {
+            addToTerminal('PASSWORD FRAGMENT IDENTIFIED: <span style="color:var(--accent)">4B80FD</span>');
+          }
+        }
+      }, 200);
+    }
+    
+    function updatePasswordCracker() {
+      const progress = Number(passwordProgress.style.width.replace('%', '') || 0);
+      const newProgress = Math.min(progress + Math.random() * 15, 100);
+      passwordProgress.style.width = `${newProgress}%`;
+      
+      // Randomly highlight different cells
+      const cells = document.querySelectorAll('.password-cell');
+      cells.forEach(cell => cell.classList.remove('highlight'));
+      
+      for (let i = 0; i < 4; i++) {
+        const randomIndex = Math.floor(Math.random() * cells.length);
+        cells[randomIndex].classList.add('highlight');
+      }
+    }
+    
+    function updateNetworkNodes() {
+      const nodes = document.querySelectorAll('.node');
+      nodes.forEach(node => {
+        if (Math.random() > 0.7) {
+          node.classList.toggle('active');
+        }
+      });
+    }
+    
+    function updateSystemStats() {
+      // Update CPU usage
+      const cpuUsage = document.getElementById('cpu-usage');
+      let cpu = Math.floor(Math.random() * 30) + 50; // 50-80%
+      cpuUsage.textContent = `${cpu}%`;
+      
+      // Update memory
+      const memoryUsage = document.getElementById('memory-usage');
+      let memory = Math.floor(Math.random() * 1000) + 900;
+      memoryUsage.textContent = `${memory} MB`;
+      
+      // Update connections
+      const connections = document.getElementById('connections');
+      let connectionCount = Math.floor(Math.random() * 10) + 1;
+      connections.textContent = connectionCount;
+      
+      // Update security level occasionally
+      if (Math.random() > 0.9) {
+        const securityLevel = document.getElementById('security-level');
+        const levels = ['ALPHA', 'BETA', 'GAMMA', 'DELTA', 'EPSILON'];
+        securityLevel.textContent = levels[Math.floor(Math.random() * levels.length)];
+      }
+    }
+    
+    // Update current time
+    function updateTime() {
+      const timeElement = document.getElementById('current-time');
+      const now = new Date();
+      timeElement.textContent = now.toLocaleTimeString();
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      const rainEffect = createMatrixRain();
+      setInterval(updateTime, 1000);
+      
+      // Focus input when clicking anywhere in the terminal
+      document.querySelector('.main-terminal').addEventListener('click', () => {
+        commandInput.focus();
+      });
+      
+      // Initial stats update
+      updateSystemStats();
+      updateTime();
+    });
+// Add these new features to the existing code
+
+// 1. Add a new module for target information
+function addTargetModule() {
+  const sidebar = document.querySelector('.sidebar');
+  
+  const targetModule = document.createElement('div');
+  targetModule.classList.add('module');
+  targetModule.id = 'target-module';
+  
+  targetModule.innerHTML = `
+    <div class="module-title">Target Information</div>
+    <div class="overlay"></div>
+    <div class="target-content">
+      <div class="stat-item">
+        <span>IP Address:</span>
+        <span id="target-ip">192.168.1.45</span>
+      </div>
+      <div class="stat-item">
+        <span>Target OS:</span>
+        <span id="target-os">Linux 5.4.0</span>
+      </div>
+      <div class="stat-item">
+        <span>Location:</span>
+        <span id="target-location">Unknown</span>
+      </div>
+      <div class="stat-item">
+        <span>Firewall:</span>
+        <span id="target-firewall">Active</span>
+      </div>
+      <div class="stat-item">
+        <span>Target Type:</span>
+        <span id="target-type">Corporate Server</span>
+      </div>
+    </div>
+  `;
+  
+  // Insert the target module at the beginning of the sidebar
+  sidebar.insertBefore(targetModule, sidebar.firstChild);
+}
+
+// 2. Add a terminal history feature
+let commandHistory = [];
+let historyIndex = -1;
+
+function setupCommandHistory() {
+  commandInput.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (historyIndex < commandHistory.length - 1) {
+        historyIndex++;
+        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        historyIndex--;
+        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+      } else if (historyIndex === 0) {
+        historyIndex = -1;
+        commandInput.value = '';
+      }
+    }
+  });
+  
+  // Modify the existing command input event listener to save commands
+  const originalKeyPressHandler = commandInput.onkeypress;
+  commandInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      const command = commandInput.value.trim();
+      if (command !== '') {
+        commandHistory.push(command);
+        if (commandHistory.length > 50) commandHistory.shift(); // Limit history size
+        historyIndex = -1;
+      }
+    }
+  });
+}
+
+// 3. Add notification system
+function setupNotificationSystem() {
+  const container = document.querySelector('.container');
+  
+  const notificationArea = document.createElement('div');
+  notificationArea.id = 'notification-area';
+  notificationArea.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    z-index: 100;
+  `;
+  
+  container.appendChild(notificationArea);
+}
+
+function showNotification(message, type = 'info') {
+  const notificationArea = document.getElementById('notification-area');
+  
+  const notification = document.createElement('div');
+  notification.classList.add('notification');
+  notification.style.cssText = `
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    animation: slideIn 0.3s, fadeOut 0.5s 4.5s;
+    position: relative;
+    overflow: hidden;
+  `;
+  
+  if (type === 'warning') {
+    notification.style.borderColor = 'yellow';
+    notification.style.color = 'yellow';
+  } else if (type === 'error') {
+    notification.style.borderColor = 'var(--accent)';
+    notification.style.color = 'var(--accent)';
+  } else if (type === 'success') {
+    notification.style.borderColor = 'var(--secondary)';
+    notification.style.color = 'var(--secondary)';
+  }
+  
+  notification.innerHTML = `
+    <div>${message}</div>
+    <div class="progress-bar" style="width: 100%; height: 2px; background-color: transparent; margin-top: 8px;">
+      <div class="progress-fill" style="height: 100%; width: 100%; animation: shrink 5s linear forwards;"></div>
+    </div>
+  `;
+  
+  notificationArea.appendChild(notification);
+  
+  // Remove notification after 5 seconds
+  setTimeout(() => {
+    notification.remove();
+  }, 5000);
+}
+
+// Add notification animation to the style
+function addNotificationStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    @keyframes shrink {
+      from { width: 100%; }
+      to { width: 0; }
+    }
+    
+    .notification .progress-fill {
+      background-color: currentColor;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// 4. Add new commands
+function addNewCommands() {
+  // Extend existing commands object with new commands
+  Object.assign(commands, {
+    'connect': 'Connect to a specific IP address or hostname.',
+    'exploit': 'Attempt to exploit discovered vulnerabilities.',
+    'download': 'Download files from the target system.',
+    'upload': 'Upload files to the target system.',
+    'trace': 'Check if your actions are being traced.',
+    'encrypt': 'Encrypt your connection for added security.',
+    'info': 'Display information about the current target.',
+    'map': 'Map the network topology of the target system.'
+  });
+  
+  // Add responses for new commands
+  Object.assign(hackerResponses, {
+    'connect': [
+      'Establishing secure connection to target...',
+      'Connection established to 192.168.1.45.',
+      'WARNING: Connection attempt detected by target system.',
+      'Routing connection through multiple proxies for security...',
+      'Target server found. Use "info" command for details.'
+    ],
+    'exploit': [
+      'Launching exploit payload for CVE-2023-4567...',
+      'EXPLOIT SUCCESSFUL: Gained user access to target system.',
+      'WARNING: Exploit attempt detected by antivirus.',
+      'Running exploit chain to escalate privileges...',
+      'ERROR: Target system patched against this vulnerability.'
+    ],
+    'download': [
+      'Downloading financial_records.xlsx (2.4 MB)...',
+      'WARNING: File access triggered security alert.',
+      'Download complete. File saved to local directory.',
+      'ERROR: Insufficient permissions to access file.',
+      'Compressing data before transfer to avoid detection...'
+    ],
+    'upload': [
+      'Uploading backdoor.exe to target system...',
+      'WARNING: Upload blocked by firewall.',
+      'Upload complete. Payload successfully installed.',
+      'Disguising upload as system file update...',
+      'ERROR: Write permissions denied on target directory.'
+    ],
+    'trace': [
+      'Running counter-trace protocols...',
+      'WARNING: Your connection is being actively traced!',
+      'No active traces detected. Connection secure.',
+      'Trace attempt detected and blocked.',
+      'ALERT: System administrator has been notified of your presence.'
+    ],
+    'encrypt': [
+      'Enabling AES-256 encryption on all connections...',
+      'Encryption active. Communications secure.',
+      'WARNING: Encryption key strength reduced to avoid detection.',
+      'Setting up end-to-end encrypted tunnel...',
+      'Encrypted connection established via onion routing.'
+    ],
+    'info': [
+      'TARGET INFORMATION:\nIP: 192.168.1.45\nOS: Linux 5.4.0\nOpen Ports: 22, 80, 443\nFirewall: Active\nLocation: New York, USA',
+      'TARGET VULNERABILITY ASSESSMENT:\nRisk Level: Medium\nUnpatched Services: 2\nPotential Entry Points: SSH, Web Server',
+      'HOST DETAILS:\nProcessor: Intel Xeon E5-2678\nRAM: 16GB\nStorage: 2TB\nUptime: 342 days',
+      'SECURITY PROFILE:\nIntrusion Detection: Active\nAntivirus: McAfee Enterprise\nFirewall: Cisco ASA\nLast Update: 47 days ago',
+      'NETWORK INFORMATION:\nDomain: megacorp.local\nSubnet: 192.168.1.0/24\nGateway: 192.168.1.1\nDNS: 192.168.1.10'
+    ],
+    'map': [
+      'Mapping network topology...',
+      'NETWORK MAP:\n- Gateway (192.168.1.1)\n  ├─ File Server (192.168.1.10)\n  ├─ Web Server (192.168.1.20)\n  ├─ Database (192.168.1.30)\n  └─ Target Host (192.168.1.45)',
+      'Discovered 17 hosts on target network.',
+      'ERROR: Network mapping blocked by intrusion detection system.',
+      'LIMITED MAP AVAILABLE:\n- Your Position ─── Firewall ─── Target System\n                      │\n                      └─── Honeypot (CAUTION)'
+    ]
+  });
+}
+
+// 5. Add visual file explorer module
+function addFileExplorerModule() {
+  const sidebar = document.querySelector('.sidebar');
+  
+  const fileExplorerModule = document.createElement('div');
+  fileExplorerModule.classList.add('module');
+  fileExplorerModule.id = 'file-explorer';
+  fileExplorerModule.style.height = '200px';
+  
+  fileExplorerModule.innerHTML = `
+    <div class="module-title">Remote File System</div>
+    <div class="overlay"></div>
+    <div class="file-explorer-content" style="height: 100%; overflow-y: auto; font-size: 12px;">
+      <div class="folder"><span class="folder-name">📁 /home</span></div>
+      <div class="file-list" style="padding-left: 15px;">
+        <div class="folder"><span class="folder-name">📁 admin</span></div>
+        <div class="file" style="padding-left: 15px;">📄 .bash_history</div>
+        <div class="file" style="padding-left: 15px;">📄 .profile</div>
+        <div class="folder"><span class="folder-name">📁 www-data</span></div>
+      </div>
+      <div class="folder"><span class="folder-name">📁 /var</span></div>
+      <div class="file-list" style="padding-left: 15px; display: none;">
+        <div class="folder"><span class="folder-name">📁 log</span></div>
+        <div class="folder"><span class="folder-name">📁 www</span></div>
+      </div>
+      <div class="folder"><span class="folder-name">📁 /etc</span></div>
+      <div class="file-list" style="padding-left: 15px; display: none;">
+        <div class="file">📄 passwd</div>
+        <div class="file">📄 shadow</div>
+        <div class="file">📄 hosts</div>
+      </div>
+    </div>
+  `;
+  
+  sidebar.appendChild(fileExplorerModule);
+  
+  // Add folder click behavior
+  setTimeout(() => {
+    const folders = document.querySelectorAll('.folder-name');
+    folders.forEach(folder => {
+      folder.addEventListener('click', function() {
+        const fileList = this.parentElement.nextElementSibling;
+        if (fileList && fileList.classList.contains('file-list')) {
+          fileList.style.display = fileList.style.display === 'none' ? 'block' : 'none';
+        }
+      });
+    });
+  }, 500);
+}
+
+// 6. Add theme switcher
+function addThemeSwitcher() {
+  const themes = {
+    'green': {
+      '--primary': '#0f0',
+      '--secondary': '#00ff9d',
+      '--background': '#000',
+      '--text': '#0f0',
+      '--accent': '#ff0055'
+    },
+    'blue': {
+      '--primary': '#00f',
+      '--secondary': '#00d9ff',
+      '--background': '#000',
+      '--text': '#00f',
+      '--accent': '#ff5500'
+    },
+    'amber': {
+      '--primary': '#ffbf00',
+      '--secondary': '#ffd700',
+      '--background': '#000',
+      '--text': '#ffbf00',
+      '--accent': '#00aaff'
+    },
+    'red': {
+      '--primary': '#f00',
+      '--secondary': '#ff5050',
+      '--background': '#000',
+      '--text': '#f00',
+      '--accent': '#00ffff'
+    }
+  };
+  
+  // Add theme command
+  commands['theme'] = 'Change the terminal color theme (green, blue, amber, red).';
+  
+  // Process theme command
+  const originalProcessCommand = processCommand;
+  window.processCommand = function(command) {
+    if (command.startsWith('theme ')) {
+      const themeName = command.split(' ')[1].toLowerCase();
+      if (themes[themeName]) {
+        applyTheme(themeName);
+        addToTerminal(`Theme changed to ${themeName}.`);
+      } else {
+        addToTerminal(`Unknown theme: ${themeName}. Available themes: green, blue, amber, red.`);
+      }
+      return;
+    }
+    
+    originalProcessCommand(command);
+  };
+  
+  function applyTheme(themeName) {
+    const theme = themes[themeName];
+    const root = document.documentElement;
+    
+    for (const [property, value] of Object.entries(theme)) {
+      root.style.setProperty(property, value);
+    }
+    
+    showNotification(`Theme changed to ${themeName}`, 'success');
+  }
+}
+
+// 7. Add a timer for challenges
+function addChallengeTimer() {
+  const statusBar = document.querySelector('.status-bar');
+  
+  const timerElement = document.createElement('div');
+  timerElement.id = 'challenge-timer';
+  timerElement.innerHTML = 'Challenge: <span id="timer-value">05:00</span>';
+  
+  statusBar.insertBefore(timerElement, statusBar.lastChild);
+  
+  // Add challenge command
+  commands['challenge'] = 'Start a timed hacking challenge.';
+  
+  // Define challenges
+  const challenges = [
+    {
+      name: 'Server Breach',
+      description: 'Gain admin access to the target server within 5 minutes.',
+      duration: 300, // 5 minutes in seconds
+      steps: ['scan', 'exploit', 'bypass', 'access']
+    },
+    {
+      name: 'Data Extraction',
+      description: 'Locate and download sensitive files without triggering alerts.',
+      duration: 180, // 3 minutes in seconds
+      steps: ['scan', 'bypass', 'access', 'download']
+    },
+    {
+      name: 'Stealth Infiltration',
+      description: 'Access the system and remain undetected for 4 minutes.',
+      duration: 240, // 4 minutes in seconds
+      steps: ['bypass', 'encrypt', 'access']
+    }
+  ];
+  
+  let activeChallenge = null;
+  let timerInterval = null;
+  let completedSteps = [];
+  
+  // Process challenge command
+  const originalProcessCommand = window.processCommand || processCommand;
+  window.processCommand = function(command) {
+    if (command === 'challenge') {
+      if (activeChallenge) {
+        addToTerminal('A challenge is already in progress.');
+        return;
+      }
+      
+      const randomChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+      startChallenge(randomChallenge);
+      return;
+    }
+    
+    // Check for challenge progress
+    if (activeChallenge && activeChallenge.steps.includes(command)) {
+      if (!completedSteps.includes(command)) {
+        completedSteps.push(command);
+        showNotification(`Challenge step completed: ${command}`, 'success');
+        
+        // Check if all steps are completed
+        if (completedSteps.length === activeChallenge.steps.length) {
+          endChallenge(true);
+        }
+      }
+    }
+    
+    originalProcessCommand(command);
+  };
+  
+  function startChallenge(challenge) {
+    activeChallenge = challenge;
+    completedSteps = [];
+    
+    addToTerminal('');
+    addToTerminal(`<span style="color:var(--secondary)">===== CHALLENGE STARTED =====</span>`);
+    addToTerminal(`<span style="color:var(--secondary)">Name: ${challenge.name}</span>`);
+    addToTerminal(`<span style="color:var(--secondary)">Objective: ${challenge.description}</span>`);
+    addToTerminal(`<span style="color:var(--secondary)">Required steps: ${challenge.steps.join(', ')}</span>`);
+    addToTerminal(`<span style="color:var(--secondary)">Time limit: ${formatTime(challenge.duration)}</span>`);
+    addToTerminal('');
+    
+    showNotification(`Challenge started: ${challenge.name}`, 'info');
+    
+    let timeRemaining = challenge.duration;
+    updateTimerDisplay(timeRemaining);
+    
+    timerInterval = setInterval(() => {
+      timeRemaining--;
+      updateTimerDisplay(timeRemaining);
+      
+      if (timeRemaining <= 0) {
+        endChallenge(false);
+      }
+    }, 1000);
+  }
+  
+  function endChallenge(success) {
+    clearInterval(timerInterval);
+    
+    if (success) {
+      addToTerminal('');
+      addToTerminal(`<span style="color:var(--secondary)">===== CHALLENGE COMPLETED =====</span>`);
+      addToTerminal(`<span style="color:var(--secondary)">Congratulations! You've completed the challenge '${activeChallenge.name}'</span>`);
+      showNotification(`Challenge completed successfully!`, 'success');
+    } else {
+      addToTerminal('');
+      addToTerminal(`<span style="color:var(--accent)">===== CHALLENGE FAILED =====</span>`);
+      addToTerminal(`<span style="color:var(--accent)">Time's up! You didn't complete the challenge in time.</span>`);
+      showNotification(`Challenge failed!`, 'error');
+    }
+    
+    updateTimerDisplay(0);
+    activeChallenge = null;
+    completedSteps = [];
+  }
+  
+  function updateTimerDisplay(seconds) {
+    const timerValue = document.getElementById('timer-value');
+    timerValue.textContent = formatTime(seconds);
+    
+    if (seconds <= 10) {
+      timerValue.style.color = 'var(--accent)';
+      timerValue.classList.add('blink');
+    } else {
+      timerValue.style.color = '';
+      timerValue.classList.remove('blink');
+    }
+  }
+  
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+}
+
+// 8. Add typing effect for terminal output
+function enhanceTerminalOutput() {
+  // Override the addToTerminal function to add typing effect
+  const originalAddToTerminal = window.addToTerminal || addToTerminal;
+  window.addToTerminal = function(text) {
+    if (text.includes('<span') || text === '') {
+      // Don't add typing effect to HTML or empty lines
+      originalAddToTerminal(text);
+      return;
+    }
+    
+    // Create the line element
+    const line = document.createElement('div');
+    line.classList.add('terminal-line');
+    terminalContent.appendChild(line);
+    
+    // Add typing effect
+    let charIndex = 0;
+    const typingSpeed = 10; // Milliseconds per character
+    
+    const typeChar = () => {
+      if (charIndex < text.length) {
+        line.textContent += text.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeChar, typingSpeed);
+      }
+      terminalContent.scrollTop = terminalContent.scrollHeight;
+    };
+    
+    typeChar();
+  };
+}
+
+// 9. Initialize all new features
+function initializeNewFeatures() {
+  // Add to the existing document.addEventListener DOMContentLoaded
+  const originalInit = document.addEventListener;
+  document.addEventListener = function(event, callback) {
+    if (event === 'DOMContentLoaded') {
+      const enhancedCallback = () => {
+        callback();
+        
+        // Add our new features after the original initialization
+        setTimeout(() => {
+          addTargetModule();
+          setupCommandHistory();
+          setupNotificationSystem();
+          addNotificationStyles();
+          addNewCommands();
+          addFileExplorerModule();
+          addThemeSwitcher();
+          addChallengeTimer();
+          enhanceTerminalOutput();
+          
+          // Show welcome notification
+          showNotification('Welcome to TERMINAL_BREACH v2.5 Enhanced', 'info');
+        }, 500);
+      };
+      
+      originalInit.call(document, event, enhancedCallback);
+    } else {
+      originalInit.apply(document, arguments);
+    }
+  };
+}
+
+// Start initialization
+initializeNewFeatures();
+
+
+  </script>
+</body>
+</html>

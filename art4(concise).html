@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid Spectrum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 30px;
+        }
+        
+        button {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-weight: 100;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            z-index: 100;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Fluid Spectrum</div>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls">
+        <button id="reset">New Pattern</button>
+        <button id="freeze">Freeze</button>
+        <button id="change-palette">Change Colors</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Color palettes
+        const palettes = [
+            ['#05668D', '#028090', '#00A896', '#02C39A', '#F0F3BD'],
+            ['#FF9F1C', '#FFBF69', '#FFFFFF', '#CBF3F0', '#2EC4B6'],
+            ['#540D6E', '#EE4266', '#FFD23F', '#3BCEAC', '#0EAD69'],
+            ['#22577A', '#38A3A5', '#57CC99', '#80ED99', '#C7F9CC'],
+            ['#5F0F40', '#9A031E', '#FB8B24', '#E36414', '#0F4C5C'],
+            ['#011627', '#FDFFFC', '#2EC4B6', '#E71D36', '#FF9F1C'],
+            ['#03071E', '#370617', '#6A040F', '#9D0208', '#D00000', '#DC2F02', '#E85D04', '#F48C06', '#FAA307', '#FFBA08']
+        ];
+        
+        let currentPalette = palettes[Math.floor(Math.random() * palettes.length)];
+        let particles = [];
+        let isAnimating = true;
+        let mouseX = 0;
+        let mouseY = 0;
+        let mouseRadius = 100;
+        let lastTime = 0;
+        
+        class Particle {
+            constructor(x, y) {
+                this.x = x || Math.random() * canvas.width;
+                this.y = y || Math.random() * canvas.height;
+                this.size = Math.random() * 5 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = currentPalette[Math.floor(Math.random() * currentPalette.length)];
+                this.originalSize = this.size;
+                this.life = Math.random() * 100 + 100;
+                this.maxLife = this.life;
+            }
+            
+            update() {
+                // Update position
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                // Interaction with mouse
+                const dx = this.x - mouseX;
+                const dy = this.y - mouseY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < mouseRadius) {
+                    const forceDirectionX = dx / distance;
+                    const forceDirectionY = dy / distance;
+                    const force = (mouseRadius - distance) / mouseRadius;
+                    
+                    this.speedX += forceDirectionX * force * 0.6;
+                    this.speedY += forceDirectionY * force * 0.6;
+                    this.size = this.originalSize * (1 + force);
+                }
+                
+                // Edge detection
+                if (this.x < 0 || this.x > canvas.width) {
+                    this.speedX *= -0.9;
+                }
+                if (this.y < 0 || this.y > canvas.height) {
+                    this.speedY *= -0.9;
+                }
+                
+                // Friction
+                this.speedX *= 0.99;
+                this.speedY *= 0.99;
+                
+                // Life decrease
+                this.life--;
+                if (this.life <= 0) {
+                    this.respawn();
+                }
+            }
+            
+            respawn() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 5 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = currentPalette[Math.floor(Math.random() * currentPalette.length)];
+                this.originalSize = this.size;
+                this.life = Math.random() * 100 + 100;
+                this.maxLife = this.life;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life / this.maxLife;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        function createParticles() {
+            particles = [];
+            const particleCount = Math.floor(window.innerWidth * window.innerHeight / 8000);
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = particles[i].color;
+                        ctx.globalAlpha = 1 - (distance / 100);
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+        }
+        
+        function animate(timestamp) {
+            if (!isAnimating) return;
+            
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            // Clear canvas with fade effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw connecting lines
+            drawLines();
+            
+            // Particle trails
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.01)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Event listeners
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createParticles();
+        });
+        
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+        });
+        
+        document.getElementById('reset').addEventListener('click', createParticles);
+        
+        document.getElementById('freeze').addEventListener('click', () => {
+            isAnimating = !isAnimating;
+            document.getElementById('freeze').textContent = isAnimating ? 'Freeze' : 'Unfreeze';
+            if (isAnimating) {
+                lastTime = performance.now();
+                requestAnimationFrame(animate);
+            }
+        });
+        
+        document.getElementById('change-palette').addEventListener('click', () => {
+            currentPalette = palettes[Math.floor(Math.random() * palettes.length)];
+            particles.forEach(particle => {
+                particle.color = currentPalette[Math.floor(Math.random() * currentPalette.length)];
+            });
+        });
+        
+        // Initialize
+        createParticles();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>

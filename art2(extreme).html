@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethereal Soundscape</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: radial-gradient(circle at center, #0f0c29, #302b63, #24243e);
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    .headline {
+      position: absolute;
+      top: 5%;
+      width: 100%;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 300;
+      letter-spacing: 12px;
+      opacity: 0.7;
+      text-transform: uppercase;
+      z-index: 10;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      animation: pulse 5s infinite alternate;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.5; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+      100% { opacity: 0.9; text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+    }
+    
+    .grid {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(20, 1fr);
+      opacity: 0.15;
+      z-index: 1;
+    }
+    
+    .grid-line {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .circle-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      z-index: 2;
+    }
+    
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      z-index: 3;
+    }
+    
+    .floating-text {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      pointer-events: none;
+      z-index: 4;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+    
+    .orb {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      z-index: 5;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    
+    .orb:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    }
+    
+    .connection {
+      position: absolute;
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform-origin: left center;
+      height: 1px;
+      z-index: 4;
+      opacity: 0.3;
+    }
+    
+    .quote {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      color: white;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+      font-style: italic;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      max-width: 300px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    .centered-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      max-width: 500px;
+      opacity: 0.8;
+      line-height: 1.6;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      z-index: 10;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .credit {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 0.7rem;
+      opacity: 0.5;
+      letter-spacing: 1px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="headline">Ethereal Soundscape</div>
+    <div class="grid"></div>
+    <div class="circle-container"></div>
+    <div class="centered-message">
+      Move your cursor through the space<br>
+      Listen to the moments between thoughts<br>
+      Find meaning in the connections
+    </div>
+    <div class="credit">a digital experience in harmony</div>
+  </div>
+  
+  <script>
+    // Collection of artistic quotes
+    const quotes = [
+      "Art needs no purpose",
+      "Colors speak volumes",
+      "Form follows feeling",
+      "Embrace the random",
+      "Digital dreams",
+      "Art is experience",
+      "Colors are emotions",
+      "Movement is life",
+      "Beauty exists in simplicity",
+      "Light finds shape in shadow",
+      "Creativity knows no boundaries",
+      "Pixels paint modern poetry",
+      "Expression beyond explanation",
+      "Harmony in digital chaos",
+      "Every interaction creates art",
+      "Imagination transcends reality",
+      "The canvas breathes with you",
+      "Moments captured in color",
+      "Space between thoughts",
+      "Fluidity defines freedom",
+      "Patterns emerge from randomness",
+      "Emotions rendered visible",
+      "The ephemeral becomes eternal",
+      "Artistry in algorithmics",
+      "Vibrations of visual thought",
+      "Design is feeling visualized",
+      "In chaos lives possibility",
+      "The gesture reveals the soul",
+      "Digital brushstrokes of time",
+      "Creativity flows like water",
+      "Between pixels lies infinity",
+      "Silence speaks in color",
+      "Art transforms the observer",
+      "Boundaries blur in creation",
+      "Inspiration needs no reason",
+      "The dance of light and dark",
+      "Each moment, a new canvas",
+      "Expression beyond words",
+      "Beauty in imperfection",
+      "Dreams coded into reality",
+      "The universe within patterns",
+      "Color is a language unspoken",
+      "Rhythm exists in stillness",
+      "The poetry of visual thought",
+      "Meaning emerges in movement",
+      "In abstraction, truth",
+      "The space between intentions",
+      "Presence creates permanence",
+      "Digital echoes of emotion",
+      "In randomness, find purpose"
+    ];
+    
+    // Generate grid
+    const grid = document.querySelector('.grid');
+    for (let i = 0; i < 20; i++) {
+      const horizontalLine = document.createElement('div');
+      horizontalLine.classList.add('grid-line');
+      horizontalLine.style.gridRow = i + 1;
+      horizontalLine.style.gridColumn = '1 / span 20';
+      horizontalLine.style.height = '1px';
+      grid.appendChild(horizontalLine);
+      
+      const verticalLine = document.createElement('div');
+      verticalLine.classList.add('grid-line');
+      verticalLine.style.gridColumn = i + 1;
+      verticalLine.style.gridRow = '1 / span 20';
+      verticalLine.style.width = '1px';
+      grid.appendChild(verticalLine);
+    }
+    
+    // Generate circles
+    const circleContainer = document.querySelector('.circle-container');
+    for (let i = 0; i < 10; i++) {
+      const circle = document.createElement('div');
+      circle.classList.add('circle');
+      
+      const size = Math.random() * 300 + 100;
+      const posX = Math.random() * window.innerWidth;
+      const posY = Math.random() * window.innerHeight;
+      
+      circle.style.width = size + 'px';
+      circle.style.height = size + 'px';
+      circle.style.left = posX + 'px';
+      circle.style.top = posY + 'px';
+      
+      circleContainer.appendChild(circle);
+      
+      // Animate circles
+      setInterval(() => {
+        const newPosX = posX + (Math.random() * 40 - 20);
+        const newPosY = posY + (Math.random() * 40 - 20);
+        
+        circle.style.left = newPosX + 'px';
+        circle.style.top = newPosY + 'px';
+      }, 5000);
+    }
+    
+    // Generate particles
+    for (let i = 0; i < 100; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      
+      const posX = Math.random() * window.innerWidth;
+      const posY = Math.random() * window.innerHeight;
+      
+      particle.style.left = posX + 'px';
+      particle.style.top = posY + 'px';
+      
+      document.body.appendChild(particle);
+      
+      // Animate particles
+      setInterval(() => {
+        const newPosX = Math.random() * window.innerWidth;
+        const newPosY = Math.random() * window.innerHeight;
+        
+        particle.style.transition = 'all ' + (Math.random() * 5 + 3) + 's linear';
+        particle.style.left = newPosX + 'px';
+        particle.style.top = newPosY + 'px';
+      }, Math.random() * 5000 + 3000);
+    }
+    
+    // Generate floating text
+    for (let i = 0; i < 20; i++) {
+      const text = document.createElement('div');
+      text.classList.add('floating-text');
+      
+      const posX = Math.random() * window.innerWidth;
+      const posY = Math.random() * window.innerHeight;
+      
+      text.style.left = posX + 'px';
+      text.style.top = posY + 'px';
+      
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let j = 0; j < 5; j++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      
+      text.textContent = result;
+      document.body.appendChild(text);
+      
+      // Show and hide text
+      setTimeout(() => {
+        text.style.opacity = 0.7;
+        
+        setTimeout(() => {
+          text.style.opacity = 0;
+          
+          // Regenerate after hiding
+          setTimeout(() => {
+            const newPosX = Math.random() * window.innerWidth;
+            const newPosY = Math.random() * window.innerHeight;
+            
+            text.style.left = newPosX + 'px';
+            text.style.top = newPosY + 'px';
+            
+            let newResult = '';
+            for (let j = 0; j < 5; j++) {
+              newResult += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            
+            text.textContent = newResult;
+            
+            setTimeout(() => {
+              text.style.opacity = 0.7;
+            }, 500);
+          }, 1000);
+        }, Math.random() * 5000 + 3000);
+      }, Math.random() * 5000);
+    }
+    
+    // Generate orbs
+    const orbs = [];
+    for (let i = 0; i < 7; i++) {
+      const orb = document.createElement('div');
+      orb.classList.add('orb');
+      
+      const posX = Math.random() * (window.innerWidth - 200) + 100;
+      const posY = Math.random() * (window.innerHeight - 200) + 100;
+      
+      orb.style.left = posX + 'px';
+      orb.style.top = posY + 'px';
+      
+      const hue = Math.floor(Math.random() * 360);
+      orb.style.background = `radial-gradient(circle at 30% 30%, hsla(${hue}, 70%, 60%, 0.4), hsla(${hue}, 70%, 30%, 0.2))`;
+      orb.style.border = `1px solid hsla(${hue}, 70%, 70%, 0.6)`;
+      
+      document.body.appendChild(orb);
+      
+      orbs.push({
+        element: orb,
+        x: posX,
+        y: posY,
+        hue: hue
+      });
+      
+      // Add click event for quote display
+      orb.addEventListener('click', (e) => {
+        const quote = document.createElement('div');
+        quote.classList.add('quote');
+        
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        quote.textContent = randomQuote;
+        
+        quote.style.left = e.clientX + 'px';
+        quote.style.top = e.clientY + 'px';
+        
+        document.body.appendChild(quote);
+        
+        setTimeout(() => {
+          quote.style.opacity = 1;
+          
+          setTimeout(() => {
+            quote.style.opacity = 0;
+            
+            setTimeout(() => {
+              quote.remove();
+            }, 500);
+          }, 3000);
+        }, 0);
+      });
+      
+      // Animate orbs
+      setInterval(() => {
+        const newPosX = posX + (Math.random() * 80 - 40);
+        const newPosY = posY + (Math.random() * 80 - 40);
+        
+        orb.style.left = newPosX + 'px';
+        orb.style.top = newPosY + 'px';
+      }, 8000);
+    }
+    
+    // Create connections between orbs
+    function createConnections() {
+      // Remove existing connections
+      document.querySelectorAll('.connection').forEach(conn => conn.remove());
+      
+      for (let i = 0; i < orbs.length; i++) {
+        for (let j = i + 1; j < orbs.length; j++) {
+          const orb1 = orbs[i];
+          const orb2 = orbs[j];
+          
+          const distance = Math.sqrt(
+            Math.pow(orb1.x - orb2.x, 2) + 
+            Math.pow(orb1.y - orb2.y, 2)
+          );
+          
+          if (distance < 300) {
+            const connection = document.createElement('div');
+            connection.classList.add('connection');
+            
+            const x1 = parseInt(orb1.element.style.left);
+            const y1 = parseInt(orb1.element.style.top);
+            const x2 = parseInt(orb2.element.style.left);
+            const y2 = parseInt(orb2.element.style.top);
+            
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            
+            connection.style.width = length + 'px';
+            connection.style.left = x1 + 'px';
+            connection.style.top = y1 + 'px';
+            connection.style.transform = `rotate(${angle}deg)`;
+            
+            document.body.appendChild(connection);
+          }
+        }
+      }
+    }
+    
+    // Update orb positions on mousemove
+    document.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      
+      orbs.forEach(orb => {
+        const orbX = parseInt(orb.element.style.left);
+        const orbY = parseInt(orb.element.style.top);
+        
+        const distance = Math.sqrt(
+          Math.pow(mouseX - orbX, 2) + 
+          Math.pow(mouseY - orbY, 2)
+        );
+        
+        if (distance < 200) {
+          const repelX = (orbX - mouseX) * 0.05;
+          const repelY = (orbY - mouseY) * 0.05;
+          
+          const newX = orbX + repelX;
+          const newY = orbY + repelY;
+          
+          orb.element.style.left = newX + 'px';
+          orb.element.style.top = newY + 'px';
+          orb.x = newX;
+          orb.y = newY;
+        }
+      });
+      
+      createConnections();
+    });
+    
+    // Initial connections
+    setTimeout(createConnections, 100);
+    
+    // Update connections periodically
+    setInterval(createConnections, 3000);
+    
+    // Hide centered message after a delay
+    setTimeout(() => {
+      document.querySelector('.centered-message').style.opacity = 0;
+    }, 5000);
+  </script>
+</body>
+</html>

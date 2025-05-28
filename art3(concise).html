@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromatic Canvas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #111;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-weight: 300;
+            letter-spacing: 3px;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        #art-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 30px;
+            z-index: 10;
+        }
+        
+        button {
+            background: none;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #fff;
+            color: #000;
+        }
+        
+        .color-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .color-dot:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CHROMATIC CANVAS</h1>
+    </header>
+    
+    <div id="canvas-container">
+        <canvas id="art-canvas"></canvas>
+    </div>
+    
+    <div id="controls">
+        <button id="new-composition">New Composition</button>
+        <button id="toggle-animation">Pause</button>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('art-canvas');
+        const ctx = canvas.getContext('2d');
+        let animationId;
+        let isAnimating = true;
+        
+        // Array to store shapes
+        let shapes = [];
+        
+        // Color palettes
+        const palettes = [
+            ['#FF6B6B', '#4ECDC4', '#1A535C', '#FFE66D', '#FF9F1C'],
+            ['#05668D', '#028090', '#00A896', '#02C39A', '#F0F3BD'],
+            ['#D91E36', '#1E96FC', '#A2D6F9', '#FCF300', '#03045E'],
+            ['#540D6E', '#EE4266', '#FFD23F', '#3BCEAC', '#0EAD69'],
+            ['#2D00F7', '#6A00F4', '#8900F2', '#A100F2', '#B100E8', '#BC00DD', '#D100D1', '#DB00B6', '#E500A4', '#F20089'],
+            ['#001219', '#005F73', '#0A9396', '#94D2BD', '#E9D8A6', '#EE9B00', '#CA6702', '#BB3E03', '#AE2012', '#9B2226']
+        ];
+        
+        // Shape types
+        const shapeTypes = ['circle', 'square', 'triangle', 'line', 'arc', 'wave'];
+        
+        // Resize handler
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            draw();
+        }
+        
+        // Initialize
+        function init() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            createComposition();
+            
+            // Event listeners
+            document.getElementById('new-composition').addEventListener('click', createComposition);
+            document.getElementById('toggle-animation').addEventListener('click', toggleAnimation);
+        }
+        
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            document.getElementById('toggle-animation').textContent = isAnimating ? 'Pause' : 'Play';
+            
+            if (isAnimating) {
+                animate();
+            } else {
+                cancelAnimationFrame(animationId);
+            }
+        }
+        
+        // Create a new artistic composition
+        function createComposition() {
+            shapes = [];
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Select a random palette
+            const currentPalette = palettes[Math.floor(Math.random() * palettes.length)];
+            
+            // Generate between 30-100 shapes
+            const numShapes = 30 + Math.floor(Math.random() * 70);
+            
+            for (let i = 0; i < numShapes; i++) {
+                const shapeType = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+                const color = currentPalette[Math.floor(Math.random() * currentPalette.length)];
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = 10 + Math.random() * 150;
+                const opacity = 0.1 + Math.random() * 0.9;
+                const speedX = (Math.random() - 0.5) * 2;
+                const speedY = (Math.random() - 0.5) * 2;
+                const rotation = Math.random() * Math.PI * 2;
+                const rotationSpeed = (Math.random() - 0.5) * 0.02;
+                
+                shapes.push({
+                    type: shapeType,
+                    x,
+                    y,
+                    size,
+                    color,
+                    opacity,
+                    speedX,
+                    speedY,
+                    rotation,
+                    rotationSpeed
+                });
+            }
+            
+            // If animation is not running, start it
+            if (!animationId && isAnimating) {
+                animate();
+            }
+        }
+        
+        // Draw all shapes
+        function draw() {
+            ctx.fillStyle = 'rgba(17, 17, 17, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            shapes.forEach(shape => {
+                ctx.save();
+                ctx.globalAlpha = shape.opacity;
+                ctx.fillStyle = shape.color;
+                ctx.strokeStyle = shape.color;
+                ctx.lineWidth = 2;
+                ctx.translate(shape.x, shape.y);
+                ctx.rotate(shape.rotation);
+                
+                switch (shape.type) {
+                    case 'circle':
+                        ctx.beginPath();
+                        ctx.arc(0, 0, shape.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                        
+                    case 'square':
+                        ctx.fillRect(-shape.size / 2, -shape.size / 2, shape.size, shape.size);
+                        break;
+                        
+                    case 'triangle':
+                        ctx.beginPath();
+                        ctx.moveTo(0, -shape.size / 2);
+                        ctx.lineTo(shape.size / 2, shape.size / 2);
+                        ctx.lineTo(-shape.size / 2, shape.size / 2);
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                        
+                    case 'line':
+                        ctx.beginPath();
+                        ctx.moveTo(-shape.size / 2, 0);
+                        ctx.lineTo(shape.size / 2, 0);
+                        ctx.stroke();
+                        break;
+                        
+                    case 'arc':
+                        ctx.beginPath();
+                        ctx.arc(0, 0, shape.size / 2, 0, Math.PI);
+                        ctx.stroke();
+                        break;
+                        
+                    case 'wave':
+                        ctx.beginPath();
+                        for (let i = -shape.size / 2; i <= shape.size / 2; i += 5) {
+                            const height = Math.sin(i * 0.1) * 20;
+                            ctx.lineTo(i, height);
+                        }
+                        ctx.stroke();
+                        break;
+                }
+                
+                ctx.restore();
+            });
+        }
+        
+        // Animation loop
+        function animate() {
+            shapes.forEach(shape => {
+                // Update position
+                shape.x += shape.speedX;
+                shape.y += shape.speedY;
+                
+                // Bounce off edges
+                if (shape.x < 0 || shape.x > canvas.width) shape.speedX *= -1;
+                if (shape.y < 0 || shape.y > canvas.height) shape.speedY *= -1;
+                
+                // Update rotation
+                shape.rotation += shape.rotationSpeed;
+            });
+            
+            draw();
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Start everything
+        window.onload = init;
+    </script>
+</body>
+</html>

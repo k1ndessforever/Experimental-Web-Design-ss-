@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiet Moments</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: #f7f4f0;
+      font-family: 'Times New Roman', serif;
+      height: 100vh;
+      overflow: hidden;
+      color: #333;
+      cursor: default;
+    }
+    
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .title {
+      position: absolute;
+      top: 10%;
+      width: 100%;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: normal;
+      letter-spacing: 4px;
+      opacity: 0.8;
+    }
+    
+    .subtitle {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      font-style: italic;
+      letter-spacing: 1px;
+      opacity: 0.5;
+    }
+    
+    .element {
+      position: absolute;
+      opacity: 0;
+      transition: opacity 3s ease;
+    }
+    
+    .dot {
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background-color: #333;
+    }
+    
+    .line {
+      height: 1px;
+      background-color: #333;
+      transform-origin: left center;
+    }
+    
+    .circle {
+      border: 1px solid #333;
+      border-radius: 50%;
+    }
+    
+    .square {
+      border: 1px solid #333;
+    }
+    
+    .text {
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      font-style: italic;
+      color: #333;
+      text-align: center;
+      transform: translate(-50%, -50%);
+      width: 150px;
+    }
+    
+    .quote {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      line-height: 1.8;
+      font-style: italic;
+      width: 80%;
+      max-width: 600px;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+    
+    .footer {
+      position: absolute;
+      bottom: 5%;
+      width: 100%;
+      text-align: center;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      opacity: 0.5;
+    }
+    
+    .brush {
+      position: absolute;
+      width: 100px;
+      height: 40px;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">
+      Quiet Moments
+      <div class="subtitle">a space for contemplation</div>
+    </div>
+    
+    <div class="quote"></div>
+    
+    <div class="footer">breathe, observe, be present</div>
+  </div>
+  
+  <script>
+    // Collection of quotes
+    const quotes = [
+      "The space between thoughts is where peace resides.",
+      "Simplicity is the ultimate sophistication.",
+      "Beauty is found in the subtlest of details.",
+      "Quietness reveals what noise conceals.",
+      "The unplanned often becomes the most meaningful.",
+      "In the absence of complexity, truth emerges.",
+      "Stillness speaks volumes.",
+      "Less is more.",
+      "The blank page holds infinite possibilities.",
+      "Whispers carry farther than shouts.",
+      "In randomness, patterns emerge.",
+      "Silence is a canvas for imagination.",
+      "The subtlest stroke leaves the deepest impression.",
+      "Patience reveals hidden beauty.",
+      "Between moments lies eternity.",
+      "The spaces between notes create the melody.",
+      "What's left unsaid often matters most.",
+      "The pause between breaths is where peace dwells.",
+      "Beauty needs no explanation.",
+      "The gentlest touch leaves the strongest mark.",
+      "Simplicity clarifies, complexity confuses.",
+      "In quiet moments, we find ourselves.",
+      "The unplanned brushstroke often creates the masterpiece.",
+      "Randomness is nature's order.",
+      "Wait, and let the silence speak."
+    ];
+    
+    // Get container dimensions
+    const container = document.querySelector('.container');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    // Create elements with random timing
+    function createRandomElement() {
+      const element = document.createElement('div');
+      element.classList.add('element');
+      
+      // Decide element type
+      const elementTypes = ['dot', 'line', 'circle', 'square', 'text'];
+      const randomWeight = Math.random();
+      let elementType;
+      
+      if (randomWeight < 0.4) {
+        elementType = 'dot';
+      } else if (randomWeight < 0.6) {
+        elementType = 'line';
+      } else if (randomWeight < 0.75) {
+        elementType = 'circle';
+      } else if (randomWeight < 0.9) {
+        elementType = 'square';
+      } else {
+        elementType = 'text';
+      }
+      
+      element.classList.add(elementType);
+      
+      // Set random position
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      
+      element.style.left = x + 'px';
+      element.style.top = y + 'px';
+      
+      // Set properties based on type
+      if (elementType === 'dot') {
+        // Dot properties - just position
+      } else if (elementType === 'line') {
+        // Line properties
+        const length = Math.random() * 100 + 20;
+        const angle = Math.random() * 360;
+        
+        element.style.width = length + 'px';
+        element.style.transform = `rotate(${angle}deg)`;
+      } else if (elementType === 'circle') {
+        // Circle properties
+        const size = Math.random() * 50 + 10;
+        
+        element.style.width = size + 'px';
+        element.style.height = size + 'px';
+        element.style.left = (x - size / 2) + 'px';
+        element.style.top = (y - size / 2) + 'px';
+      } else if (elementType === 'square') {
+        // Square properties
+        const size = Math.random() * 40 + 10;
+        
+        element.style.width = size + 'px';
+        element.style.height = size + 'px';
+        element.style.left = (x - size / 2) + 'px';
+        element.style.top = (y - size / 2) + 'px';
+        element.style.transform = `rotate(${Math.random() * 45}deg)`;
+      } else if (elementType === 'text') {
+        // Text properties
+        const textOptions = [
+          'breathe', 
+          'pause', 
+          'listen', 
+          'observe', 
+          'wait', 
+          'silence', 
+          'moment', 
+          'space', 
+          'stillness', 
+          'quiet'
+        ];
+        const randomText = textOptions[Math.floor(Math.random() * textOptions.length)];
+        
+        element.textContent = randomText;
+      }
+      
+      // Add to container
+      container.appendChild(element);
+      
+      // Fade in
+      setTimeout(() => {
+        element.style.opacity = Math.random() * 0.3 + 0.1;
+      }, 100);
+      
+      // Remove after some time
+      const duration = Math.random() * 20000 + 10000;
+      setTimeout(() => {
+        element.style.opacity = 0;
+        
+        setTimeout(() => {
+          element.remove();
+        }, 3000);
+      }, duration);
+    }
+    
+    // Create elements periodically
+    setInterval(createRandomElement, 2000);
+    
+    // Display random quotes periodically
+    function displayQuote() {
+      const quoteElement = document.querySelector('.quote');
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      
+      quoteElement.textContent = randomQuote;
+      quoteElement.style.opacity = 0.8;
+      
+      setTimeout(() => {
+        quoteElement.style.opacity = 0;
+      }, 8000);
+    }
+    
+    // Display quote every 15 seconds
+    setInterval(displayQuote, 15000);
+    
+    // Show initial quote after a delay
+    setTimeout(displayQuote, 3000);
+    
+    // Create brush strokes on mouse movement
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() < 0.1) {
+        const brush = document.createElement('div');
+        brush.classList.add('brush');
+        
+        brush.style.left = e.clientX + 'px';
+        brush.style.top = e.clientY + 'px';
+        
+        const angle = Math.random() * 360;
+        const size = Math.random() * 30 + 5;
+        
+        brush.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+        brush.style.width = 80 + Math.random() * 40 + 'px';
+        brush.style.height = 20 + Math.random() * 10 + 'px';
+        
+        container.appendChild(brush);
+        
+        setTimeout(() => {
+          brush.style.opacity = 0.08;
+          
+          setTimeout(() => {
+            brush.style.opacity = 0;
+            
+            setTimeout(() => {
+              brush.remove();
+            }, 1000);
+          }, 2000);
+        }, 10);
+      }
+    });
+    
+    // Handle window resizing
+    window.addEventListener('resize', () => {
+      location.reload();
+    });
+    
+    // Initialize with a few elements
+    for (let i = 0; i < 10; i++) {
+      setTimeout(createRandomElement, Math.random() * 3000);
+    }
+  </script>
+</body>
+</html>
